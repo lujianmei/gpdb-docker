@@ -24,8 +24,10 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 
 # unzip the file
 RUN  cd /download
-RUN  wget -O gpdb-5.1.0.tar.gz https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
-RUN  tar -xzvf gpdb-5.1.0.tar.gz
+# RUN  wget -O gpdb-5.1.0.tar.gz https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
+RUN  tar -xzvf gpdb-5.1.0.tar.gz -C /download
+RUN  echo "check current directory"
+RUN  pwd && ls
 
 # install optimizer
 RUN cd /download/gpdb-5.1.0/depends \
@@ -34,7 +36,7 @@ RUN cd /download/gpdb-5.1.0/depends \
     && cd ..
 
 # Configure build environment to install at /usr/local/gpdb
-RUN  && ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
+RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
      # Compile and install
      && make -j8 \
      && make -j8 install \
