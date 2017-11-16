@@ -6,3 +6,6 @@ services:
 
 script:
   - docker build
+cache:
+    directories:
+     - /home/download
