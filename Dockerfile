@@ -23,7 +23,7 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # unzip the file
-# RUN wget  https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /download/gpdb-5.1.0.tar.gz
+RUN wget  https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /download/gpdb-5.1.0.tar.gz
 RUN  cd /download && tar -zxvf gpdb-5.1.0.tar.gz
 
 # install optimizer
