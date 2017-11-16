@@ -31,6 +31,7 @@ RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninjia/
 RUN ls && pwd && /tmp/ninjia/configure.py --bootstrap
 
+WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gporca.git && git pull --ff-only
 WORKDIR /tmp/gporca/
 RUN cmake -GNinja -H. -Bbuild \
