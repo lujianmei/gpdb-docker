@@ -32,11 +32,11 @@ RUN  echo "check current directory"
 RUN  pwd && ls
 
 # install optimizer
-WORKDIR /tmp/5.1.0/depends
+WORKDIR /tmp/gpdb-5.1.0/depends
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
 
-WORKDIR /tmp/5.1.0
+WORKDIR /tmp/gpdb-5.1.0
 
 # Configure build environment to install at /usr/local/gpdb
 RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
