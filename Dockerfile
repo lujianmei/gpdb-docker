@@ -8,9 +8,9 @@ COPY * /tmp/
 RUN yum install -y sudo wget
 
 # install dependency on centos
-RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
-    && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
-    && ldconfig
+RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
+    # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
+    # && ldconfig
 
 # If you want to install and use gcc-6 by default, run:
 # RUN sudo yum install -y centos-release-scl \
@@ -27,18 +27,23 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 
 # install optimizer
 WORKDIR /tmp/
+RUN git clone https://github.com/ninja-build/ninja.git
+WORKDIR ninjia
+RUN ./configure.py --bootstrap
+
 RUN git clone https://github.com/greenplum-db/gporca.git && git pull --ff-only
-WORKDIR /tmp/gporca
+WORKDIR /tmp/gporca/
 RUN cmake -GNinja -H. -Bbuild \
     && ninja install -C build
 
-WORKDIR /tmp/gpdb-5.1.0/depends
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
 RUN cat /etc/ld.so.conf
 RUN ldconfig
+
 # RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
+WORKDIR /tmp/gpdb-5.1.0/depends
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
 
