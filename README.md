@@ -1,7 +1,9 @@
+
 # gpdb-docker
 Pivotal Greenplum Database Base Docker Image (4.3.7.1)
 
-[![](https://images.microbadger.com/badges/version/pivotaldata/gpdb-base.svg)](https://microbadger.com/images/pivotaldata/gpdb-base "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/pivotaldata/gpdb-base.svg)](https://microbadger.com/images/pivotaldata/gpdb-base "Get your own version badge on microbadger.com") [![Build Status](https://travis-ci.org/lujianmei/gpdb-docker.svg?branch=master)](https://travis-ci.org/lujianmei/gpdb-docker)
+
 
 
 # Building the Docker Image

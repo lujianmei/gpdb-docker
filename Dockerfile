@@ -1,18 +1,15 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-
 FROM centos:7
 MAINTAINER anysky130@163.com
 
-
-#COPY * /tmp/
-ADD . /tmp/
+COPY * /tmp/
 RUN yum install -y sudo wget
 
 # install dependency on centos
-# RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
-    && cat /tmp/configs/ld.so.conf.add >> /etc/ld.so.conf \
+RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
+    && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf \
     && ldconfig
 
 # If you want to install and use gcc-6 by default, run:
@@ -50,18 +47,18 @@ RUN mkdir /gpdata
 RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 
 RUN echo root:trsadmin | chpasswd \
-        && cat /tmp/configs/sysctl.conf.add >> /etc/sysctl.conf \
-        && cat /tmp/configs/limits.conf.add >> /etc/security/limits.conf \
-        && echo "localhost" > /tmp/configs/gpdb-hosts \
-        && chmod 777 /tmp/configs/gpinitsystem_singlenode \
+        && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
+        && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
+        && echo "localhost" > /tmp/gpdb-hosts \
+        && chmod 777 /tmp/gpinitsystem_singlenode \
         && hostname > ~/orig_hostname \
-        && mv /tmp/configs/run.sh /usr/local/bin/run.sh \
+        && mv /tmp/run.sh /usr/local/bin/run.sh \
         && chmod +x /usr/local/bin/run.sh \
         && /usr/sbin/groupadd gpadmin \
         && /usr/sbin/useradd gpadmin -g gpadmin -G wheel \
         && echo "trsadmin"|passwd --stdin gpadmin \
         && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
-        && mv /tmp/configs/bash_profile /home/gpadmin/.bash_profile \
+        && mv /tmp/bash_profile /home/gpadmin/.bash_profile \
         && chown -R gpadmin: /home/gpadmin \
         && mkdir -p /gpdata/master /gpdata/segments \
         && chown -R gpadmin: /gpdata \
