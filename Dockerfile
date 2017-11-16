@@ -10,7 +10,7 @@ RUN yum install -y sudo wget
 
 # install dependency on centos
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
-    && cat /download/configs/ld.so.conf.add >> /etc/ld.so.conf \
+    && cat /tmp/configs/ld.so.conf.add >> /etc/ld.so.conf \
     && ldconfig
 
 # If you want to install and use gcc-6 by default, run:
@@ -20,7 +20,7 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 
 # unzip the file
 COPY * /tmp/
-RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
+# RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
 RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
 RUN  echo "check current directory"
 RUN  pwd && ls
