@@ -6,11 +6,12 @@ FROM centos:7
 MAINTAINER anysky130@163.com
 
 
-COPY * /tmp/
+#COPY * /tmp/
+ADD . /tmp/
 RUN yum install -y sudo wget
 
 # install dependency on centos
-RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
+# RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
     && cat /tmp/configs/ld.so.conf.add >> /etc/ld.so.conf \
     && ldconfig
 
