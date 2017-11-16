@@ -1,2 +1,3 @@
-gpdb-5.1.0.tag.gz
+*.tar.gz
+*.zip
 gpdb-5.1.0

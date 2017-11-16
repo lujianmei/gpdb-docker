@@ -6,6 +6,7 @@ FROM centos:7
 MAINTAINER anysky130@163.com
 
 
+COPY * /tmp/
 RUN yum install -y sudo wget
 
 # install dependency on centos
@@ -19,8 +20,7 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # unzip the file
-COPY * /tmp/
-# RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
+RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
 RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
 RUN  echo "check current directory"
 RUN  pwd && ls
