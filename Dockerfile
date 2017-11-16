@@ -27,9 +27,11 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 
 # install optimizer
 WORKDIR /tmp/gpdb-5.1.0/depends
-RUN ls /usr/local/bin
-RUN ls /usr/bin
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf
+RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
+RUN cat /etc/ld.so.conf
+RUN ldconfig
 # RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
