@@ -26,6 +26,7 @@ RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
 RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 
 # install optimizer
+RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
@@ -38,7 +39,6 @@ WORKDIR /tmp/gporca/
 RUN git pull --ff-only && cmake -GNinja -H. -Bbuild \
     && ninja install -C build
 
-RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
 RUN cat /etc/ld.so.conf
