@@ -5,7 +5,7 @@ services:
     - docker
 
 script:
-  - docker build
+  - docker build .
 cache:
     directories:
      - /download
