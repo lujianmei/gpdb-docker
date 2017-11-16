@@ -8,4 +8,4 @@ script:
   - docker build
 cache:
     directories:
-     - /home/download
+     - /download
