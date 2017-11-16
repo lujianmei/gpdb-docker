@@ -34,6 +34,7 @@ RUN  pwd && ls
 # install optimizer
 WORKDIR /tmp/gpdb-5.1.0/depends
 RUN ln -sf /usr/local/bin/cmake3 /usr/local/bin/cmake
+# RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
 
