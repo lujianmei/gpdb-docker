@@ -25,10 +25,10 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 # unzip the file
 RUN  cd /download
 RUN  wget -O gpdb-5.1.0.tar.gz https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
-RUN  tar -xzvf gpdb-5.1.0.tar.gz && cd gpdb-5.1.0
+RUN  tar -xzvf gpdb-5.1.0.tar.gz
 
 # install optimizer
-RUN cd ./depends \
+RUN cd /download/gpdb-5.1.0/depends \
     && conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build \
     && cd ..
