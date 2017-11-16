@@ -10,7 +10,7 @@ USER root
 RUN mkdir /download
 ADD . /download/
 
-RUN yum install -y sudo
+RUN yum install -y sudo wget
 
 # install dependency on centos
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
