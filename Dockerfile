@@ -2,17 +2,19 @@
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
 
-FROM centos:6.7
-MAINTAINER dbaskette@pivotal.io
+FROM centos:7
+MAINTAINER anysky130@163.com
 
 COPY * /tmp/
 RUN echo root:pivotal | chpasswd \
-        && yum install -y unzip which tar more util-linux-ng passwd openssh-clients openssh-server ed m4; yum clean all \
-        && unzip /tmp/greenplum-db-4.3.7.1-build-1-RHEL5-x86_64.zip -d /tmp/ \
-        && rm /tmp/greenplum-db-4.3.7.1-build-1-RHEL5-x86_64.zip \
-        && sed -i s/"more << EOF"/"cat << EOF"/g /tmp/greenplum-db-4.3.7.1-build-1-RHEL5-x86_64.bin \
-        && echo -e "yes\n\nyes\nyes\n" | /tmp/greenplum-db-4.3.7.1-build-1-RHEL5-x86_64.bin \
-        && rm /tmp/greenplum-db-4.3.7.1-build-1-RHEL5-x86_64.bin \
+
+        && yum install -y unzip which tar wget more util-linux-ng passwd openssh-clients openssh-server ed m4; yum clean all \
+        && wget  https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/greenplum-5.1.0.zip
+        && unzip /tmp/greenplum-5.1.0.zip -d /tmp/ \
+        && rm /tmp/greenplum-5.1.0.zip \
+        && sed -i s/"more << EOF"/"cat << EOF"/g /tmp/greenplum-5.1.0.zip \
+        && echo -e "yes\n\nyes\nyes\n" | /tmp/greenplum-5.1.0.zip \
+        && rm /tmp/greenplum-5.1.0.zip \ 
         && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
         && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
         && rm -f /tmp/*.add \
