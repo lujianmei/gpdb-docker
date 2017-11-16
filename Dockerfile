@@ -6,10 +6,6 @@ FROM centos:7
 MAINTAINER anysky130@163.com
 
 
-USER root
-RUN mkdir /download
-ADD . /download/
-
 RUN yum install -y sudo wget
 
 # install dependency on centos
@@ -23,17 +19,17 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # unzip the file
-RUN  cd /download
-# RUN  wget -O gpdb-5.1.0.tar.gz https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
-RUN  tar -xzf gpdb-5.1.0.tar.gz -C /download
+COPY * /tmp/
+# RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
+RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
 RUN  echo "check current directory"
 RUN  pwd && ls
 
 # install optimizer
-RUN cd /download/gpdb-5.1.0/depends \
+RUN cd /tmp/gpdb-5.1.0/depends \
     && conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build \
-    && cd ..
+    && cd /tmp/gpdb-5.1.0
 
 # Configure build environment to install at /usr/local/gpdb
 RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
@@ -53,25 +49,25 @@ RUN mkdir /gpdata
 RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 
 RUN echo root:trsadmin | chpasswd \
-        && cat /download/configs/sysctl.conf.add >> /etc/sysctl.conf \
-        && cat /download/configs/limits.conf.add >> /etc/security/limits.conf \
-        && echo "localhost" > /download/configs/gpdb-hosts \
-        && chmod 777 /download/configs/gpinitsystem_singlenode \
+        && cat /tmp/configs/sysctl.conf.add >> /etc/sysctl.conf \
+        && cat /tmp/configs/limits.conf.add >> /etc/security/limits.conf \
+        && echo "localhost" > /tmp/configs/gpdb-hosts \
+        && chmod 777 /tmp/configs/gpinitsystem_singlenode \
         && hostname > ~/orig_hostname \
-        && mv /download/configs/run.sh /usr/local/bin/run.sh \
+        && mv /tmp/configs/run.sh /usr/local/bin/run.sh \
         && chmod +x /usr/local/bin/run.sh \
         && /usr/sbin/groupadd gpadmin \
         && /usr/sbin/useradd gpadmin -g gpadmin -G wheel \
         && echo "trsadmin"|passwd --stdin gpadmin \
         && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
-        && mv /download/configs/bash_profile /home/gpadmin/.bash_profile \
+        && mv /tmp/configs/bash_profile /home/gpadmin/.bash_profile \
         && chown -R gpadmin: /home/gpadmin \
         && mkdir -p /gpdata/master /gpdata/segments \
         && chown -R gpadmin: /gpdata \
         && chown -R gpadmin: /usr/local/green* \
         && service sshd start \
-        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpssh-exkeys -f /download/gpdb-hosts"  \
-        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpinitsystem -a -c  /download/gpinitsystem_singlenode -h /download/gpdb-hosts; exit 0 "\
+        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
+        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
         && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /usr/local/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
 
 
