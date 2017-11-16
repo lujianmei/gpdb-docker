@@ -29,7 +29,8 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninjia/
-RUN ls && pwd && /tmp/ninjia/configure.py --bootstrap
+RUN ls && pwd
+RUN /tmp/ninjia/configure.py --bootstrap
 
 WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gporca.git
