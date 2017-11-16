@@ -32,9 +32,9 @@ WORKDIR /tmp/ninjia/
 RUN ls && pwd && /tmp/ninjia/configure.py --bootstrap
 
 WORKDIR /tmp/
-RUN git clone https://github.com/greenplum-db/gporca.git && git pull --ff-only
+RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca/
-RUN cmake -GNinja -H. -Bbuild \
+RUN git pull --ff-only && cmake -GNinja -H. -Bbuild \
     && ninja install -C build
 
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
