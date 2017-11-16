@@ -26,6 +26,12 @@ RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
 RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 
 # install optimizer
+WORKDIR /tmp/
+RUN git clone https://github.com/greenplum-db/gporca.git && git pull --ff-only
+WORKDIR /tmp/gporca
+RUN cmake -GNinja -H. -Bbuild \
+    && ninja install -C build
+
 WORKDIR /tmp/gpdb-5.1.0/depends
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
