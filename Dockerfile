@@ -18,7 +18,8 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # unzip the file
-RUN cd /tmp/
+WORKDIR /tmp/
+
 RUN  echo "check current directory"
 RUN  pwd && ls
 
@@ -31,10 +32,11 @@ RUN  echo "check current directory"
 RUN  pwd && ls
 
 # install optimizer
-RUN cd /tmp/5.1.0/depends \
-    && conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
-    && conan install --build \
-    && cd /tmp/5.1.0
+WORKDIR /tmp/5.1.0/depends
+RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
+    && conan install --build
+
+WORKDIR /tmp/5.1.0
 
 # Configure build environment to install at /usr/local/gpdb
 RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
