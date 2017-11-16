@@ -18,7 +18,7 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # unzip the file
-RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
+RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
 RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
 RUN  echo "check current directory"
 RUN  pwd && ls
