@@ -20,7 +20,7 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
 
 # unzip the file
 COPY * /tmp/
-# RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
+RUN  wget -O https://github.com/greenplum-db/gpdb/archive/5.1.0.zip /tmp/gpdb-5.1.0.zip
 RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
 RUN  echo "check current directory"
 RUN  pwd && ls
