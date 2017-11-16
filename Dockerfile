@@ -9,7 +9,7 @@ RUN yum install -y sudo wget
 
 # install dependency on centos
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash \
-    && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf \
+    && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     && ldconfig
 
 # If you want to install and use gcc-6 by default, run:
