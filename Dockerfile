@@ -28,8 +28,8 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 # install optimizer
 WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
-WORKDIR ninjia
-RUN ./configure.py --bootstrap
+WORKDIR /tmp/ninjia/
+RUN ls && pwd && /tmp/ninjia/configure.py --bootstrap
 
 RUN git clone https://github.com/greenplum-db/gporca.git && git pull --ff-only
 WORKDIR /tmp/gporca/
