@@ -5,7 +5,7 @@ FROM centos:7
 MAINTAINER anysky130@163.com
 
 COPY * /tmp/
-RUN yum install -y sudo wget git ninja
+RUN yum install -y sudo wget git
 
 # install dependency on centos
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
@@ -30,8 +30,7 @@ RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
 RUN /tmp/ninja/configure.py --bootstrap
 RUN cp ninja /usr/bin/
-RUN ls && ls /usr/bin/ && ls /usr/local/bin/ 
-RUN whereis ninja
+
 
 ########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
 # https://github.com/greenplum-db/gp-xerces
@@ -63,10 +62,11 @@ RUN ninja install -C build
 WORKDIR /tmp/
 RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
 RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
-WORKDIR /tmp/gpdb-5.1.0/depends
-RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
-    && conan install --build
+# WORKDIR /tmp/gpdb-5.1.0/depends
+# RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
+#     && conan install --build
 WORKDIR /tmp/gpdb-5.1.0
+
 
 # Configure build environment to install at /usr/local/gpdb
 RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/usr/local/gpdb \
