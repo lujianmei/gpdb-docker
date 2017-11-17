@@ -58,6 +58,7 @@ RUN ninja install -C build
 # running a GPOARC test
 # RUN ctest -j7 --output-on-failure
 
+
 ########### INSTALL GREENPLUM 5.1.0
 WORKDIR /tmp/
 RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
