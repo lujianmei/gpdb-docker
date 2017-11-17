@@ -1,17 +1,22 @@
 
 # gpdb-docker
-Pivotal Greenplum Database Base Docker Image (4.3.7.1)
+Pivotal Greenplum Database Base Docker Image (5.1.0)
 
 [![](https://images.microbadger.com/badges/version/pivotaldata/gpdb-base.svg)](https://microbadger.com/images/pivotaldata/gpdb-base "Get your own version badge on microbadger.com") [![Build Status](https://travis-ci.org/lujianmei/gpdb-docker.svg?branch=master)](https://travis-ci.org/lujianmei/gpdb-docker)
 
+## Information ##
+Current repository build based on Greenplum 5.1.0 version, which is using docker compose to build, include a docker master container holding a Master node, and two segment containers holding a segment node for each of them.  So when the docker compose startup, it will launch three Containers up.
 
+## Startup the Containers ##
+1. First of all, you need to make sure the docker has been installed in your computer.
+2. 
 
 # Building the Docker Image
-You will first need to download the Pivotal Greenplum Database 4.3.7.1 installer (.zip) located at https://network.pivotal.io/products/pivotal-gpdb and place it inside the docker working directory.
+For the purpose of changing the build information, rebuilding all images, you need to do as following step:
 
-cd [docker working directory]
-
-docker build -t [tag] .
+git clone https://github.com/lujianmei/gpdb-docker.git gpdb-docker
+cd gpdb-docker
+gpdb-docker.sh build .
 
 # Running the Docker Image
 docker run -i -p 5432:5432 [tag]

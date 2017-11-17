@@ -46,9 +46,10 @@ RUN ../configure --prefix=/opt/gp_xerces && make && make install
 ########### INSTALL GREENPLUM QUERY OPTIMIZER: GPORCA
 # https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/
-RUN git clone https://github.com/greenplum-db/gporca.git
-WORKDIR /tmp/gporca/
-RUN git pull --ff-only
+RUN wget https://github.com/greenplum-db/gporca/archive/v2.46.6.tar.gz
+RUN tar -zxf /tmp/v2.46.6.tar.gz -C /tmp/
+# RUN git clone https://github.com/greenplum-db/gporca.git
+WORKDIR /tmp/gporca-2.46.6/
 
 # RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
 RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
@@ -86,6 +87,7 @@ RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 ########### SETTING FOR SYSTEM BASIC OPTIMIZATION
 RUN echo root:trsadmin | chpasswd \
         && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
+        && sysctl -p \
         && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
         && echo "localhost" > /tmp/gpdb-hosts \
         && chmod 777 /tmp/gpinitsystem_singlenode \
