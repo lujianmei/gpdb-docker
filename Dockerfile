@@ -29,7 +29,7 @@ WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
 RUN /tmp/ninja/configure.py --bootstrap
-RUN copy ninja /usr/bin/
+RUN cp ninja /usr/bin/
 RUN ls && ls /usr/bin/ && ls /usr/local/bin/ 
 RUN whereis ninja
 
