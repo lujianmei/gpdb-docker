@@ -53,6 +53,7 @@ WORKDIR /tmp/gporca-2.46.6/
 
 # RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
 RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
+
 #RUN cmake -GNinja -H. -Bbuild
 RUN ninja install -C build
 # running a GPOARC test
