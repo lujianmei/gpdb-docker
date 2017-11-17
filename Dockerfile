@@ -55,7 +55,7 @@ RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY
 #RUN cmake -GNinja -H. -Bbuild
 RUN ninja install -C build
 # running a GPOARC test
-RUN ctest -j7 --output-on-failure
+# RUN ctest -j7 --output-on-failure
 
 ########### INSTALL GREENPLUM 5.1.0
 WORKDIR /tmp/
