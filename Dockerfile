@@ -11,45 +11,56 @@ RUN yum install -y sudo wget git ninja
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf
+RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
+RUN cat /etc/ld.so.conf
+RUN ldconfig
+
 
 # If you want to install and use gcc-6 by default, run:
 # RUN sudo yum install -y centos-release-scl \
 #     && sudo yum install -y devtoolset-6-toolchain \
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
-# unzip the file
-WORKDIR /tmp/
-
-RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
-#RUN  unzip /tmp/gpdb-5.1.0.zip -d /tmp/ 
-
-RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
-
-# install optimizer
+########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
+# https://github.com/ninja-build/ninja
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
 RUN /tmp/ninja/configure.py --bootstrap
 
+########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
+# https://github.com/greenplum-db/gp-xerces
+WORKDIR /tmp/
+RUN git clone https://github.com/greenplum-db/gp-xerces.git
+WORKDIR /tmp/gp-xerces
+RUN mkdir build
+WORKDIR /tmp/build
+RUN ../config --prefix=/opt/gp_xerces && make && make install
+
+########### INSTALL GREENPLUM QUERY OPTIMIZER: GPORCA
+# https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca/
-RUN git pull --ff-only && cmake -GNinja -H. -Bbuild
+RUN git pull --ff-only
+
+RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
+#RUN cmake -GNinja -H. -Bbuild
 RUN ls
 RUN whereis ninja
 RUN ninja install -C build
+# running a GPOARC test
+RUN ctest -j7 --output-on-failure
 
-RUN echo "/usr/local/lib" >> /etc/ld.so.conf
-RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
-RUN cat /etc/ld.so.conf
-RUN ldconfig
-
-# RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
+########### INSTALL GREENPLUM 5.1.0
+WORKDIR /tmp/
+RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
+RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 WORKDIR /tmp/gpdb-5.1.0/depends
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
-
 WORKDIR /tmp/gpdb-5.1.0
 
 # Configure build environment to install at /usr/local/gpdb
@@ -65,10 +76,11 @@ RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=
      && source gpAux/gpdemo/gpdemo-env.sh
 
 
-# setting the data
+########### SETTING GREENPLUM DATA DIRECTORY
 RUN mkdir /gpdata
 RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 
+########### SETTING FOR SYSTEM BASIC OPTIMIZATION
 RUN echo root:trsadmin | chpasswd \
         && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
         && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
@@ -95,8 +107,10 @@ RUN echo root:trsadmin | chpasswd \
 EXPOSE 5432 22
 
 VOLUME /gpdata
-# Set the default command to run when starting the container
 
+
+########### START THE RUN.SH WHEN CONTAINER START
+# Set the default command to run when starting the container
 CMD echo "127.0.0.1 $(cat ~/orig_hostname)" >> /etc/hosts \
         && service sshd start \
 #       && sysctl -p \
