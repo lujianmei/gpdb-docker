@@ -29,6 +29,9 @@ WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
 RUN /tmp/ninja/configure.py --bootstrap
+RUN copy ninja /usr/bin/
+RUN ls && ls /usr/bin/ && ls /usr/local/bin/ 
+RUN whereis ninja
 
 ########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
 # https://github.com/greenplum-db/gp-xerces
@@ -50,8 +53,6 @@ RUN git pull --ff-only
 # RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
 RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
 #RUN cmake -GNinja -H. -Bbuild
-RUN ls
-RUN whereis ninja
 RUN ninja install -C build
 # running a GPOARC test
 RUN ctest -j7 --output-on-failure
