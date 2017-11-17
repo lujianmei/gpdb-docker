@@ -30,17 +30,15 @@ RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 WORKDIR /tmp/
 RUN git clone https://github.com/ninja-build/ninja.git
 WORKDIR /tmp/ninja/
-RUN ls
 RUN /tmp/ninja/configure.py --bootstrap
-
-RUN ls -al /usr/local/bin
-RUN ls -al /usr/bin
 
 WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca/
-RUN git pull --ff-only && cmake -Gninja -H. -Bbuild \
-    && ninja install -C build
+RUN git pull --ff-only && cmake -GNinja -H. -Bbuild
+RUN ls
+RUN whereis ninja
+RUN ninja install -C build
 
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
