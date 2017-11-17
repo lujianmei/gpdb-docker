@@ -37,7 +37,7 @@ RUN git clone https://github.com/greenplum-db/gp-xerces.git
 WORKDIR /tmp/gp-xerces
 RUN chmod +x ./configure
 RUN mkdir build
-WORKDIR /tmp/build
+WORKDIR /tmp/gp-xerces/build
 RUN ../configure --prefix=/opt/gp_xerces && make && make install
 
 ########### INSTALL GREENPLUM QUERY OPTIMIZER: GPORCA
@@ -47,7 +47,8 @@ RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca/
 RUN git pull --ff-only
 
-RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
+# RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
+RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
 #RUN cmake -GNinja -H. -Bbuild
 RUN ls
 RUN whereis ninja
