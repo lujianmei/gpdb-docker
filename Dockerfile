@@ -5,7 +5,7 @@ FROM centos:7
 MAINTAINER anysky130@163.com
 
 COPY * /tmp/
-RUN yum install -y sudo wget git ninja-build
+RUN yum install -y sudo wget git ninja
 
 # install dependency on centos
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
@@ -27,16 +27,19 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 
 # install optimizer
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
-# WORKDIR /tmp/
-# RUN git clone https://github.com/ninja-build/ninja.git
-# WORKDIR /tmp/ninja/
-# RUN ls
-# RUN /tmp/ninja/configure.py --bootstrap
+WORKDIR /tmp/
+RUN git clone https://github.com/ninja-build/ninja.git
+WORKDIR /tmp/ninja/
+RUN ls
+RUN /tmp/ninja/configure.py --bootstrap
+
+RUN ls -al /usr/local/bin
+RUN ls -al /usr/bin
 
 WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca/
-RUN git pull --ff-only && cmake -GNinja -H. -Bbuild \
+RUN git pull --ff-only && cmake -Gninja -H. -Bbuild \
     && ninja install -C build
 
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
