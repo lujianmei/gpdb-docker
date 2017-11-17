@@ -35,6 +35,7 @@ RUN /tmp/ninja/configure.py --bootstrap
 WORKDIR /tmp/
 RUN git clone https://github.com/greenplum-db/gp-xerces.git
 WORKDIR /tmp/gp-xerces
+RUN chmod +x ./config
 RUN mkdir build
 WORKDIR /tmp/build
 RUN ../config --prefix=/opt/gp_xerces && make && make install
