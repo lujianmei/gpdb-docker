@@ -24,7 +24,7 @@ RUN ldconfig
 
 # ########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
 # # https://github.com/ninja-build/ninja
-# RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
+RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 # WORKDIR /tmp/
 # RUN git clone https://github.com/ninja-build/ninja.git
 # WORKDIR /tmp/ninja/
