@@ -66,6 +66,12 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 WORKDIR /tmp/gpdb-5.1.0/depends
 RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
     && conan install --build
+
+
+RUN ls /root/.conan/data/orca/v2.46.2/gpdb/stable
+RUN ls /root/.conan/data/orca/v2.46.2/gpdb/stable/package
+RUN ls /root/.conan/data/orca/v2.46.2/gpdb/stable/package | cd
+RUN ls -al
 WORKDIR /tmp/gpdb-5.1.0
 
 
