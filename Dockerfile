@@ -11,11 +11,6 @@ RUN yum install -y sudo wget git
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
-RUN echo "/usr/local/lib" >> /etc/ld.so.conf
-RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
-RUN cat /etc/ld.so.conf
-RUN ldconfig
-
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 
 # If you want to install and use gcc-6 by default, run:
@@ -63,6 +58,12 @@ RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opt/gp-orca -D XE
 # RUN ninja install -C build
 # # running a GPOARC test
 # # RUN ctest -j7 --output-on-failure
+
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf
+RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
+RUN echo "/opt/gp-orca/lib" >> /etc/ld.so.conf
+RUN cat /etc/ld.so.conf
+RUN ldconfig
 
 
 ########### INSTALL GREENPLUM 5.1.0
