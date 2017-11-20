@@ -12,9 +12,8 @@ RUN echo root:trsadmin | chpasswd \
     && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
     && sysctl -p \
     && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
-    && echo "localhost" > /tmp/gpdb-hosts \
     && chmod 777 /tmp/gpinitsystem_singlenode \
-    && hostname > ~/orig_hostname \
+    && hostname > /tmp/cluster_hostname \
     && mv /tmp/run.sh /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh \
     && /usr/sbin/groupadd gpadmin \
@@ -23,7 +22,7 @@ RUN echo root:trsadmin | chpasswd \
     && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
     && mv /tmp/bash_profile /home/gpadmin/.bash_profile \
     && chown -R gpadmin: /home/gpadmin \
-    && mkdir -p /gpdata/master /gpdata/segments \
+    && mkdir -p /gpdata/master /gpdata/segments /gpdata/segmentmirror \
     && chown -R gpadmin: /gpdata \
     && chown -R gpadmin: /usr/local/green*
 
@@ -42,50 +41,50 @@ RUN ldconfig
 #     && sudo yum install -y devtoolset-6-toolchain \
 #     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
-########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
-# https://github.com/ninja-build/ninja
-RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
-WORKDIR /tmp/
-RUN git clone https://github.com/ninja-build/ninja.git
-WORKDIR /tmp/ninja/
-RUN /tmp/ninja/configure.py --bootstrap
-RUN cp ninja /usr/bin/
+# ########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
+# # https://github.com/ninja-build/ninja
+# RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
+# WORKDIR /tmp/
+# RUN git clone https://github.com/ninja-build/ninja.git
+# WORKDIR /tmp/ninja/
+# RUN /tmp/ninja/configure.py --bootstrap
+# RUN cp ninja /usr/bin/
 
 
-########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
-# https://github.com/greenplum-db/gp-xerces
-WORKDIR /tmp/
-RUN git clone https://github.com/greenplum-db/gp-xerces.git
-WORKDIR /tmp/gp-xerces
-RUN chmod +x ./configure
-RUN mkdir build
-WORKDIR /tmp/gp-xerces/build
-RUN ../configure --prefix=/opt/gp_xerces && make && make install
+# ########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
+# # https://github.com/greenplum-db/gp-xerces
+# WORKDIR /tmp/
+# RUN git clone https://github.com/greenplum-db/gp-xerces.git
+# WORKDIR /tmp/gp-xerces
+# RUN chmod +x ./configure
+# RUN mkdir build
+# WORKDIR /tmp/gp-xerces/build
+# RUN ../configure --prefix=/opt/gp_xerces && make && make install
 
-########### INSTALL GREENPLUM QUERY OPTIMIZER: GPORCA
-# https://github.com/greenplum-db/gporca.git
-WORKDIR /tmp/
-RUN wget https://github.com/greenplum-db/gporca/archive/v2.46.6.tar.gz
-RUN tar -zxf /tmp/v2.46.6.tar.gz -C /tmp/
-# RUN git clone https://github.com/greenplum-db/gporca.git
-WORKDIR /tmp/gporca-2.46.6/
+# ########### INSTALL GREENPLUM QUERY OPTIMIZER: GPORCA
+# # https://github.com/greenplum-db/gporca.git
+# WORKDIR /tmp/
+# RUN wget https://github.com/greenplum-db/gporca/archive/v2.46.6.tar.gz
+# RUN tar -zxf /tmp/v2.46.6.tar.gz -C /tmp/
+# # RUN git clone https://github.com/greenplum-db/gporca.git
+# WORKDIR /tmp/gporca-2.46.6/
 
-# RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
-RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
+# # RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
+# RUN cmake -GNinja -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so -H. -Bbuild
 
-#RUN cmake -GNinja -H. -Bbuild
-RUN ninja install -C build
-# running a GPOARC test
-# RUN ctest -j7 --output-on-failure
+# #RUN cmake -GNinja -H. -Bbuild
+# RUN ninja install -C build
+# # running a GPOARC test
+# # RUN ctest -j7 --output-on-failure
 
 
 ########### INSTALL GREENPLUM 5.1.0
 WORKDIR /tmp/
 RUN  wget https://github.com/greenplum-db/gpdb/archive/5.1.0.tar.gz
 RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
-# WORKDIR /tmp/gpdb-5.1.0/depends
-# RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
-#     && conan install --build
+WORKDIR /tmp/gpdb-5.1.0/depends
+RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
+    && conan install --build
 WORKDIR /tmp/gpdb-5.1.0
 
 
@@ -122,7 +121,7 @@ VOLUME /gpdata
 
 ########### START THE RUN.SH WHEN CONTAINER START
 # Set the default command to run when starting the container
-CMD echo "127.0.0.1 $(cat ~/orig_hostname)" >> /etc/hosts \
+CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
         && service sshd start \
 #       && sysctl -p \
         && su gpadmin -l -c "/usr/local/bin/run.sh" \
