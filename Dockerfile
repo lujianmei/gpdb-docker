@@ -11,13 +11,12 @@ RUN yum install -y sudo wget git
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
-RUN echo "/usr/local" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
 RUN cat /etc/ld.so.conf
-RUN ls /usr/local
 RUN ldconfig
 
+RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
 
 # If you want to install and use gcc-6 by default, run:
 # RUN sudo yum install -y centos-release-scl \
@@ -26,12 +25,11 @@ RUN ldconfig
 
 # ########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
 # # https://github.com/ninja-build/ninja
-RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
-WORKDIR /tmp/
-RUN git clone https://github.com/ninja-build/ninja.git
-WORKDIR /tmp/ninja/
-RUN /tmp/ninja/configure.py --bootstrap
-RUN cp ninja /usr/bin/
+# WORKDIR /tmp/
+# RUN git clone https://github.com/ninja-build/ninja.git
+# WORKDIR /tmp/ninja/
+# RUN /tmp/ninja/configure.py --bootstrap
+# RUN cp ninja /usr/bin/
 
 
 ########### INSTALL OPTIMIZER DEPENDENCY: GP-XERCES
@@ -52,10 +50,15 @@ RUN tar -zxf /tmp/v2.46.6.tar.gz -C /tmp/
 # RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca-2.46.6/
 
+
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opt/gp-orca -D XERCES_INCLUDE_DIR=/opt/gp-xerces/include -D XERCES_LIBRARY=/opt/gp-xerces/lib/libxerces-c.so .. \
+      && make -j 32 \
+      && make install
+
 # RUN cmake -GNinja -H. -Bbuild -D XERCES_INCLUDE_DIR=/opt/gp_xerces/include -D XERCES_LIBRARY=/opt/gp_xerces/lib/libxerces-c.so ..
-RUN cmake -GNinja -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opt/gp-orca -D XERCES_INCLUDE_DIR=/opt/gp-xerces/include -D XERCES_LIBRARY=/opt/gp-xerces/lib/libxerces-c.so -H. -Bbuild
+# RUN cmake -GNinja -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opt/gp-orca -D XERCES_INCLUDE_DIR=/opt/gp-xerces/include -D XERCES_LIBRARY=/opt/gp-xerces/lib/libxerces-c.so -H. -Bbuild
 # #RUN cmake -GNinja -H. -Bbuild
-RUN ninja install -C build
+# RUN ninja install -C build
 # # running a GPOARC test
 # # RUN ctest -j7 --output-on-failure
 
