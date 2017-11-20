@@ -117,4 +117,4 @@ ENCODING=UNICODE
 # system is initialized. You can always create a database later using
 # the CREATE DATABASE command or the createdb script.
 
-#DATABASE_NAME=warehouse
+DATABASE_NAME=warehouse

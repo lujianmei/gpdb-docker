@@ -11,9 +11,11 @@ RUN yum install -y sudo wget git
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
+RUN echo "/usr/local" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf
 RUN echo "/usr/local/lib64" >> /etc/ld.so.conf
 RUN cat /etc/ld.so.conf
+RUN ls /usr/local
 RUN ldconfig
 
 
@@ -100,12 +102,12 @@ RUN echo root:trsadmin | chpasswd \
     && chown -R gpadmin: /home/gpadmin \
     && mkdir -p /gpdata/master /gpdata/segments /gpdata/segmentmirror \
     && chown -R gpadmin: /gpdata \
-    && chown -R gpadmin: /usr/local/green*
+    && chown -R gpadmin: /opt/gpdb/green*
 
 
-RUN su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
-    && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
-    && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /usr/local/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
+RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
+    && su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
+    && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /opt/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
 ########### START SSHD
 RUN service sshd start
 
