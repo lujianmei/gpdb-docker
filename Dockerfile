@@ -7,7 +7,27 @@ MAINTAINER anysky130@163.com
 COPY * /tmp/
 RUN yum install -y sudo wget git
 
-# install dependency on centos
+########### SETTING FOR SYSTEM BASIC OPTIMIZATION
+RUN echo root:trsadmin | chpasswd \
+    && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
+    && sysctl -p \
+    && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
+    && echo "localhost" > /tmp/gpdb-hosts \
+    && chmod 777 /tmp/gpinitsystem_singlenode \
+    && hostname > ~/orig_hostname \
+    && mv /tmp/run.sh /usr/local/bin/run.sh \
+    && chmod +x /usr/local/bin/run.sh \
+    && /usr/sbin/groupadd gpadmin \
+    && /usr/sbin/useradd gpadmin -g gpadmin -G wheel \
+    && echo "trsadmin"|passwd --stdin gpadmin \
+    && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
+    && mv /tmp/bash_profile /home/gpadmin/.bash_profile \
+    && chown -R gpadmin: /home/gpadmin \
+    && mkdir -p /gpdata/master /gpdata/segments \
+    && chown -R gpadmin: /gpdata \
+    && chown -R gpadmin: /usr/local/green*
+
+# INSTALL DEPENDENCY ON CENTOS
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
@@ -86,30 +106,14 @@ RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=
 RUN mkdir /gpdata
 RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 
-########### SETTING FOR SYSTEM BASIC OPTIMIZATION
-RUN echo root:trsadmin | chpasswd \
-        && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
-        && sysctl -p \
-        && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
-        && echo "localhost" > /tmp/gpdb-hosts \
-        && chmod 777 /tmp/gpinitsystem_singlenode \
-        && hostname > ~/orig_hostname \
-        && mv /tmp/run.sh /usr/local/bin/run.sh \
-        && chmod +x /usr/local/bin/run.sh \
-        && /usr/sbin/groupadd gpadmin \
-        && /usr/sbin/useradd gpadmin -g gpadmin -G wheel \
-        && echo "trsadmin"|passwd --stdin gpadmin \
-        && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
-        && mv /tmp/bash_profile /home/gpadmin/.bash_profile \
-        && chown -R gpadmin: /home/gpadmin \
-        && mkdir -p /gpdata/master /gpdata/segments \
-        && chown -R gpadmin: /gpdata \
-        && chown -R gpadmin: /usr/local/green* \
-        && service sshd start \
-        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
-        && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
-        && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /usr/local/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
+########### START SSHD
+RUN service sshd start
 
+
+########### SETTING FOR SYSTEM BASIC OPTIMIZATION
+RUN su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
+    && su gpadmin -l -c "source /usr/local/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
+    && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /usr/local/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
 
 EXPOSE 5432 22
 
