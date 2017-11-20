@@ -10,7 +10,6 @@ RUN yum install -y sudo wget git
 ########### SETTING FOR SYSTEM BASIC OPTIMIZATION
 RUN echo root:trsadmin | chpasswd \
     && cat /tmp/sysctl.conf.add >> /etc/sysctl.conf \
-    && sysctl -p \
     && cat /tmp/limits.conf.add >> /etc/security/limits.conf \
     && chmod 777 /tmp/gpinitsystem_singlenode \
     && hostname > /tmp/cluster_hostname \
