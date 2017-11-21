@@ -84,11 +84,11 @@ RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=
      && make -j8 \
      && make -j8 install \
      # Bring in greenplum environment into your running shell
-     && source /opt/gpdb/greenplum_path.sh \
+     && source /opt/gpdb/greenplum_path.sh
      # Start demo cluster
-     && make create-demo-cluster \
+     # && make create-demo-cluster \
      # (gpdemo-env.sh contains __PGPORT__ and __MASTER_DATA_DIRECTORY__ values)
-     && source gpAux/gpdemo/gpdemo-env.sh
+     # && source gpAux/gpdemo/gpdemo-env.sh
 
 ########### SETTING GREENPLUM DATA DIRECTORY
 RUN mkdir /gpdata
