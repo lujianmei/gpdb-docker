@@ -92,7 +92,7 @@ RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=
 
 ########### SETTING GREENPLUM DATA DIRECTORY
 RUN mkdir /gpdata
-RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
+# RUN DATADIRS=/gpdata MASTER_PORT=15432 PORT_BASE=25432 make cluster
 
 ########### SETTING FOR SYSTEM BASIC OPTIMIZATION
 RUN echo root:trsadmin | chpasswd \
