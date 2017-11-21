@@ -76,7 +76,7 @@ RUN tar -zxf /tmp/5.1.0.tar.gz -C /tmp/
 # RUN conan remote add conan-gpdb https://api.bintray.com/conan/greenplum-db/gpdb-oss \
 #     && conan install --build
 
-# Configure build environment to install at /usr/local/gpdb
+# Configure build environment to install at /opt/gpdb
 
 WORKDIR /tmp/gpdb-5.1.0
 RUN  ./configure --with-perl --with-python --with-libxml --with-gssapi --prefix=/opt/gpdb --with-includes=/usr/local/include:/opt/gp-orca/include:/opt/gp-xerces/include --with-libraries=/usr/local/lib:/usr/local/lib64:/opt/gp-orca/lib:/opt/gp-xerces/lib \
