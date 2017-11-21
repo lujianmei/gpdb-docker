@@ -12,7 +12,9 @@ RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.Ce
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
     # && ldconfig
 RUN ln -sf /usr/bin/cmake3 /usr/local/bin/cmake
-
+RUN echo "export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin/:/bin/:/usr/sbin/:/usr/bin/:/root/bin/" >> /root/.bash_profile
+RUN source /root/.bash_profile
+RUN echo $PATH
 # If you want to install and use gcc-6 by default, run:
 # RUN sudo yum install -y centos-release-scl \
 #     && sudo yum install -y devtoolset-6-toolchain \
