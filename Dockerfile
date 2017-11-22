@@ -1,15 +1,14 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-FROM centos:7
+FROM centos:6.8
 MAINTAINER anysky130@163.com
 VOLUME /sys/fs/cgroup /run /tmp
 ENV container=docker
 
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server;
-RUN yum clean all && yum swap -y fakesystemd systemd
-RUN systemctl
+
 RUN ls /usr/bin
 RUN ls /usr/local/bin
 # INSTALL DEPENDENCY ON CENTOS
@@ -120,8 +119,7 @@ RUN echo root:trsadmin | chpasswd \
     && chown -R gpadmin: /opt/gpdb/green*
 
 # NECESSARY: key exchange with ourselves - needed by single-node greenplum and hadoop
-RUN systemctl && systemctl list-units
-RUN systemctl start sshd && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
+RUN service sshd start && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
 # RUN /usr/bin/ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys && /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts &&\
     /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts
@@ -134,7 +132,7 @@ RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -h localho
 # INITIALIZE GPDB SYSTEM
 # HACK: note, capture of unique docker hostname -- at this point, the hostname gets embedded into the installation ... :(
 # RUN systemctl start sshd && su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
-RUN su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
+RUN service sshd start && su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
 
 # HACK: docker_transient_hostname_workaround, explanation:
 #
@@ -169,7 +167,7 @@ VOLUME /gpdata
 # Set the default command to run when starting the container
 # CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
 CMD ./docker_transient_hostname_workaround.sh \
-        && systemctl start sshd \
+        && service sshd start \
         && sysctl -p \
         && su gpadmin -l -c "/usr/local/bin/run.sh" \
         && /bin/bash
