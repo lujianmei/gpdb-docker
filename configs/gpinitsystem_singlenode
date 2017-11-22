@@ -22,7 +22,7 @@ ARRAY_NAME="GPDB SANDBOX"
 # directory where the gpinitsystem utility is executed, specify
 # the absolute path to the file.
 
-MACHINE_LIST_FILE=/tmp/gpdb-hosts
+MACHINE_LIST_FILE=./singlenode_hostlist
 
 
 # This specifies a prefix that will be used to name the data directories

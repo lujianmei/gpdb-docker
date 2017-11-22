@@ -106,20 +106,53 @@ RUN echo root:trsadmin | chpasswd \
     && /usr/sbin/useradd gpadmin -g gpadmin -G wheel \
     && echo "trsadmin"|passwd --stdin gpadmin \
     && echo "gpadmin        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers \
+    && mv /tmp/singlenode_hostlist /home/gpadmin/singlenode_hostlist \
+    && mv /tmp/gpinitsystem_singlenode /home/gpadmin/gpinitsystem_singlenode \
     && mv /tmp/bash_profile /home/gpadmin/.bash_profile \
     && chown -R gpadmin: /home/gpadmin \
     && mkdir -p /gpdata/master /gpdata/segments /gpdata/segmentmirror \
     && chown -R gpadmin: /gpdata \
     && chown -R gpadmin: /opt/gpdb/green*
 
+# NECESSARY: key exchange with ourselves - needed by single-node greenplum and hadoop
+RUN service sshd start && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
+cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys && ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts &&\
+ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts
 
-RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -f /tmp/gpdb-hosts"  \
-    && su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h /tmp/gpdb-hosts; exit 0 "\
+RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -h localhost"  \
+    && hostname > /docker_hostname_at_moment_of_gpinitsystem &&\
+    && su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h localhost; exit 0 "\
     && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /opt/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
-########### START SSHD
-RUN service sshd start
+
+# INITIALIZE GPDB SYSTEM
+# HACK: note, capture of unique docker hostname -- at this point, the hostname gets embedded into the installation ... :(
+RUN service sshd start &&\
+    su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
+
+# HACK: docker_transient_hostname_workaround, explanation:
+#
+# When gpinitsystem runs, it embeds the hostname (at that moment) into the installation.  Since Docker generates a new
+# random hostname each time it runs, the hostname that is embedded, will never work again.  When you run `gpstart`, if
+# the embedded hostname is not a valid DNS name, it will fail with this error:
+#
+# gpadmin-[ERROR]:-gpstart failed.  exiting...
+# <snip>
+#    addrinfo = socket.getaddrinfo(hostToPing, None)
+# gaierror: [Errno -2] Name or service not known
+#
+# (You can reproduce this by removing the `docker_transient_hostname_workaround` bit from the CMD at the bottom.)
+#
+# So what we do here is to capture the random hostname at the moment that gpinitsystem is run, and later we can append
+# it to /etc/hosts when we run `gpstart` -- this seems to keep it happy.
+#
+COPY /tmp/docker_transient_hostname_workaround.sh /home/gpadmin/docker_transient_hostname_workaround.sh
+RUN chmod +x /home/gpadmin/docker_transient_hostname_workaround.sh
 
 
+# WIDE OPEN GPDB ACCESS PERMISSIONS
+# COPY /tmp/allow_all_password_incoming_pg_hba.conf /gpdata/gpmaster/gpsne-1/pg_hba.conf
+COPY /tmp/allow_all_password_incoming_pg_hba.conf /gpdata/gpmaster/gpseg-1/pg_hba.conf
+COPY /tmp/postgresql.conf /gpdata/gpmaster/gpseg-1/postgresql.conf
 EXPOSE 5432 22
 
 VOLUME /gpdata
@@ -127,8 +160,9 @@ VOLUME /gpdata
 
 ########### START THE RUN.SH WHEN CONTAINER START
 # Set the default command to run when starting the container
-CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
+# CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
+CMD ./docker_transient_hostname_workaround.sh \
         && service sshd start \
-#       && sysctl -p \
+        && sysctl -p \
         && su gpadmin -l -c "/usr/local/bin/run.sh" \
         && /bin/bash
