@@ -6,7 +6,7 @@ MAINTAINER anysky130@163.com
 
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server httpd; yum clean all; systemctl enable httpd.service
-RUN systemctl enable sshd.service; systemctl start sshd
+RUN systemctl enable sshd.service; 
 # INSTALL DEPENDENCY ON CENTOS
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
