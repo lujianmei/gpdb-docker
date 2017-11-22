@@ -1,13 +1,12 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-FROM centos/systemd
+FROM centos:6.8
 MAINTAINER anysky130@163.com
 ENV container=docker
 
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server;
-RUN systemctl && systemctl list-units
 # INSTALL DEPENDENCY ON CENTOS
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
@@ -116,7 +115,7 @@ RUN echo root:trsadmin | chpasswd \
     && chown -R gpadmin: /opt/gpdb/green*
 
 # NECESSARY: key exchange with ourselves - needed by single-node greenplum and hadoop
-RUN systemctl start sshd && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
+RUN service sshd start && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
 # RUN /usr/bin/ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys && /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts &&\
     /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts
@@ -164,7 +163,7 @@ VOLUME /gpdata
 # Set the default command to run when starting the container
 # CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
 CMD ./docker_transient_hostname_workaround.sh \
-        && systemctl start sshd \
+        && service sshd start \
         && sysctl -p \
         && su gpadmin -l -c "/usr/local/bin/run.sh" \
         && /bin/bash
