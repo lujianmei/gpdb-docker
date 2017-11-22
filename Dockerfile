@@ -1,7 +1,7 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-FROM centos:latest
+FROM centos:7.4.1708
 MAINTAINER anysky130@163.com
 
 COPY * /tmp/
@@ -117,8 +117,9 @@ RUN echo root:trsadmin | chpasswd \
     && chown -R gpadmin: /opt/gpdb/green*
 
 # NECESSARY: key exchange with ourselves - needed by single-node greenplum and hadoop
-# RUN systemctl start sshd && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
-RUN /usr/bin/ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
+RUN systemctl && systemctl list-units
+RUN systemctl start sshd && ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
+# RUN /usr/bin/ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys && /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts &&\
     /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts
 
@@ -129,7 +130,7 @@ RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -h localho
 
 # INITIALIZE GPDB SYSTEM
 # HACK: note, capture of unique docker hostname -- at this point, the hostname gets embedded into the installation ... :(
-# RUN systemctl start sshd &&\
+# RUN systemctl start sshd && su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
 RUN su gpadmin -l -c "gpinitsystem -a -D -c /home/gpadmin/gpinitsystem_singlenode --su_password=secret;"; exit 0;
 
 # HACK: docker_transient_hostname_workaround, explanation:
@@ -165,7 +166,7 @@ VOLUME /gpdata
 # Set the default command to run when starting the container
 # CMD echo "127.0.0.1 $(cat /tmp/cluster_hostname)" >> /etc/hosts \
 CMD ./docker_transient_hostname_workaround.sh \
-        # && systemctl start sshd \
+        && systemctl start sshd \
         && sysctl -p \
         && su gpadmin -l -c "/usr/local/bin/run.sh" \
         && /bin/bash
