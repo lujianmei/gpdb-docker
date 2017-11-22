@@ -123,7 +123,7 @@ RUN /usr/bin/ssh-keygen -t rsa -q -f /root/.ssh/id_rsa -P "" &&\
     /usr/bin/ssh-keyscan -t rsa localhost >> /root/.ssh/known_hosts
 
 RUN su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpssh-exkeys -h localhost"  \
-    && hostname > /docker_hostname_at_moment_of_gpinitsystem &&\
+    && hostname > /docker_hostname_at_moment_of_gpinitsystem \
     && su gpadmin -l -c "source /opt/gpdb/greenplum_path.sh;gpinitsystem -a -c  /tmp/gpinitsystem_singlenode -h localhost; exit 0 "\
     && su gpadmin -l -c "export MASTER_DATA_DIRECTORY=/gpdata/master/gpseg-1;source /opt/gpdb/greenplum_path.sh;psql -d template1 -c \"alter user gpadmin password 'trsadmin'\"; createdb gpadmin;  exit 0"
 
