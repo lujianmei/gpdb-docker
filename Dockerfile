@@ -5,8 +5,8 @@ FROM centos:latest
 MAINTAINER anysky130@163.com
 
 COPY * /tmp/
-RUN yum install -y sudo wget git openssl openssl-devel;systemctl enable sshd.service
-
+RUN yum install -y sudo wget git openssl openssl-devel;
+RUN ls /usr/sbin
 # INSTALL DEPENDENCY ON CENTOS
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
