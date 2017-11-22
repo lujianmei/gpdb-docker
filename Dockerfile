@@ -9,6 +9,7 @@ ENV container=docker
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server;
 RUN yum clean all && yum swap -y fakesystemd systemd
+RUN systemctl
 RUN ls /usr/bin
 RUN ls /usr/local/bin
 # INSTALL DEPENDENCY ON CENTOS
