@@ -3,14 +3,11 @@
 #
 FROM centos:6.8
 MAINTAINER anysky130@163.com
-VOLUME /sys/fs/cgroup /run /tmp
 ENV container=docker
 
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server;
 
-RUN ls /usr/bin
-RUN ls /usr/local/bin
 # INSTALL DEPENDENCY ON CENTOS
 RUN curl -L https://raw.githubusercontent.com/greenplum-db/gpdb/master/README.CentOS.bash | /bin/bash
     # && cat /tmp/ld.so.conf.add >> /etc/ld.so.conf.d/usrlocallib.conf \
@@ -50,8 +47,6 @@ RUN wget https://github.com/greenplum-db/gporca/archive/v2.46.6.tar.gz
 RUN tar -zxf /tmp/v2.46.6.tar.gz -C /tmp/
 # RUN git clone https://github.com/greenplum-db/gporca.git
 WORKDIR /tmp/gporca-2.46.6/
-
-
 RUN mkdir build
 WORKDIR /tmp/gporca-2.46.6/build
 RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/opt/gp-orca -D XERCES_INCLUDE_DIR=/opt/gp-xerces/include -D XERCES_LIBRARY=/opt/gp-xerces/lib/libxerces-c.so ..\
