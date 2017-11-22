@@ -1,7 +1,7 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-FROM centos:7
+FROM centos:latest
 MAINTAINER anysky130@163.com
 
 COPY * /tmp/
