@@ -15,9 +15,9 @@ RUN echo "export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/sbin/:/bin/:/usr/sbi
 RUN source /root/.bash_profile
 RUN echo $PATH
 # If you want to install and use gcc-6 by default, run:
-# RUN sudo yum install -y centos-release-scl \
-#     && sudo yum install -y devtoolset-6-toolchain \
-#     && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
+RUN sudo yum install -y centos-release-scl \
+    && sudo yum install -y devtoolset-6-toolchain \
+    && echo 'source scl_source enable devtoolset-6' >> ~/.bashrc
 
 # ########### INSTALL COMPILER OPTIMIZER: NINJA (QUICK COMPILER)
 # # https://github.com/ninja-build/ninja
