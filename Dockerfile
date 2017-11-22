@@ -1,8 +1,10 @@
 #
 #  Dockerfile for a GPDB SNE Sandbox Base Image
 #
-FROM centos:7.4.1708
+FROM centos:7
 MAINTAINER anysky130@163.com
+VOLUME /sys/fs/cgroup /run /tmp
+ENV container=docker
 
 COPY * /tmp/
 RUN yum install -y sudo wget git openssl openssl-devel openssh-server;
